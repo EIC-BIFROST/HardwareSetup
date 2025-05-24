@@ -25,7 +25,7 @@ Install the packages:
 sudo apt install ros-humble-mavros ros-humble-mavros-extras
 ````
 
----
+
 
 
 ### 2. Identify the Pixhawk Serial Port
@@ -44,7 +44,7 @@ You should see a path like:
 
 This path is symlinked and **more stable** than using `/dev/ttyACM0` (which may change across reboots).
 
----
+
 
 
 ### 3. Start MAVROS with the Correct FCU URL
@@ -63,7 +63,7 @@ Although this might work, the port can change and cause instability. For example
 ros2 launch mavros px4.launch fcu_url:=serial:///dev/ttyACM0:115200
 ```
 
----
+
 
 
 ### 4. Echo IMU Data
