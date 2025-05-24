@@ -8,7 +8,7 @@ This guide explains how to set up MAVROS (ROS 2 Humble) on a Jetson Orin Nano wi
 - **Pixhawk** flight controller (tested with FMUv6X)
 - **USB-C to USB-A cable**
 
-> 🔌 **Important Note**:  
+## 🔌 **Important Note**:  
 Use a **USB-C to USB-A** cable to connect the **Pixhawk USB-C port** to the **Jetson Orin Nano USB-A port**.  
 Jetson Orin Nano’s USB-C port cannot be used for communication in this setup because it's not in the correct USB mode.
 
