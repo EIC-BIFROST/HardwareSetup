@@ -1,12 +1,25 @@
 import asyncio
 from mavsdk import System
 
+async def drop(drone, ind, t):
+    for i in range(4):
+        await drone.action.set_actuator(i+1, -1)
+    halfValue = [0.4, 0.1, 0.1, 0]
+    print("Start air dropping process")
+    await drone.action.set_actuator(ind, halfValue[ind-1])
+    await asyncio.sleep(t)
+    await drone.action.set_actuator(ind, 1)
+    await asyncio.sleep(1)
+    await drone.action.set_actuator(ind, -1)
+    print("air drop done")
+
+
 async def run():
 
     #initial drone connection
     print("program run")
     drone = System()
-    await drone.connect(system_address = "serial:///dev/ttyUSB0:57600")
+    await drone.connect(system_address = "serial:///dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKJWG-if00-port0:57600")
     #serial:///dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKJWG-if00-port0:57600
     #udp://:14540
     print("Drone connection process started!")
@@ -23,7 +36,8 @@ async def run():
     
     await drone.action.arm()
     print("Armed")
-    await drone.action.set_actuator(1, 0)
+    await drop(drone, 3, 1)
+    await drop(drone, 4, 1)
     print("servo moved")
     
     
