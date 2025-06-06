@@ -19,9 +19,8 @@ async def run():
     #initial drone connection
     print("program run")
     drone = System()
-    await drone.connect(system_address = "serial:///dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKJWG-if00-port0:57600")
-    #serial:///dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKJWG-if00-port0:57600
-    #udp://:14540
+    #await drone.connect(system_address = "serial:///dev/serial/by-id/usb-FTDI_FT231X_USB_UART_D30IKJWG-if00-port0:57600")
+    await drone.connect(system_address= "udp://:14551")
     print("Drone connection process started!")
     async for state in drone.core.connection_state():
         if state.is_connected:
@@ -36,7 +35,7 @@ async def run():
     
     await drone.action.arm()
     print("Armed")
-    await drop(drone, 3, 1)
+    await drop(drone, 1, 1)
     await drop(drone, 4, 1)
     print("servo moved")
     
