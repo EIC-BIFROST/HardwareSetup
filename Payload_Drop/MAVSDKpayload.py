@@ -35,8 +35,11 @@ async def run():
     
     await drone.action.arm()
     print("Armed")
-    await drop(drone, 1, 1)
-    await drop(drone, 4, 1)
+    while True:
+        await drone.action.set_actuator(1, 0)
+        await asyncio.sleep(0.5)
+        await drone.action.set_actuator(1, -1)
+        await asyncio.sleep(0.1)
     print("servo moved")
     
     

@@ -1,4 +1,3 @@
-import numpy as np
 import random
 from shapely.geometry import Polygon, Point
 
@@ -28,7 +27,9 @@ def main(runway, quadrant):
 
     # Define the Quadiant
     poly = Polygon(AirDropArea['R' + str(runway) + 'Q' + str(quadrant)])
-    points = polygon_random_points(poly)# Printing the results.
+    points = polygon_random_points(poly)
+    # Printing the results.
     for p in points:
         return round(p.x, 6), round(p.y, 6)
 
+#print(main(1,1))

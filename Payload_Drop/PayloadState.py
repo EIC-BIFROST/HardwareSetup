@@ -1,37 +1,45 @@
 import asyncio
 from mavsdk import System
-from pymavlink import mavutil
+import AirdropPos
+import RCreadChannel
 
-# just for sim
-CV_detected = True
+drone = System()
+runway = 1
+ind = 1
 
-def check_RC_value():
-    master = mavutil.mavlink_connection('udp:127.0.0.1:14552')
-    msg = master.recv_match(type='RC_CHANNELS', blocking=True)
-    if msg.chan7_raw < 1000:
-        speed = 0.5 # normal drop
-    elif msg.chan7_raw < 1500:
-        speed = 0 # stop
-    else:
-        speed = 1 # fast drop
-    return speed
 
 async def Start_dropping():
-    if CV_detected == True:
-        pos = [cv_x, cv_y]
-        drop_function(pos)
-        return True
-    else:
-        if CV_detected == True:
-            pos = [cv_x, cv_y, cv_z]
-            drop_function(pos)
-        else:
-            random_drop()
-        return False
-
-
-async def main():
+    await drone.connect(system_address="udp://:14551")
+    print("Waiting for drone to connect...")
+    async for state in drone.core.connection_state():
+        if state.is_connected:
+            print(f"-- Connected to drone!")
+            break
     
-    speed = await check_RC_value()
-    print(speed)
-    await asyncio.sleep(1)
+    await drone.action.arm()
+    #lat, long = await AirdropPos.main(runway)
+    D = 0
+    print(D)
+    while D < 16:
+        valid, position = RCreadChannel.check_RC_value('payloadDrop')
+        if valid:
+            if position == -1:
+                await drone.action.set_actuator(ind, 0)
+                await asyncio.sleep(0.5)
+                await drone.action.set_actuator(ind, -1)
+                await asyncio.sleep(0.1)
+                D += 1.225
+                print('normal drop')
+            elif position == 0:
+                await drone.action.set_actuator(ind, -1)
+                await asyncio.sleep(0.1)
+                print('stop drop')
+            elif position == 1:
+                await drone.action.set_actuator(ind, 0)
+                await asyncio.sleep(4)
+                print('goodbye')
+                break
+        print(D)
+    print('air drop done')
+
+asyncio.run(Start_dropping())
