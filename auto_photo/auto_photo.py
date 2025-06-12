@@ -18,6 +18,7 @@ def capture_image(filename):
     cap = cv2.VideoCapture(1)
     ret, frame = cap.read()
     if ret:
+        frame=cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         cv2.imwrite(filename, frame)
         print(f"✅ Saved image: {filename}")
     else:
