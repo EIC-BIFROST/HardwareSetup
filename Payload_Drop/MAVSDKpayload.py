@@ -39,14 +39,17 @@ async def ManualDrop(drone, ind):
         if valid:
             if position == -1:
                 await drone.action.set_actuator(ind, -1)
+                print('not dropping')
             if position == 0:
                 await drone.action.set_actuator(ind, halfValue[ind-1])
+                print('dropping')
             if position == 1:
                 await drone.action.set_actuator(ind, 1)
+                print('Goodbye')
                 await asyncio.sleep(1)
                 break
         await asyncio.sleep(0.1)
-        print("air drop done")
+    print("air drop done")
         
 async def run():
 
@@ -60,6 +63,8 @@ async def run():
         if state.is_connected:
             print(f"-- Connected to drone!")
             break
+
+    # If want to test with out take off, take line 65-70 and line 74-76 out but the drone will operate only 6 second.
     print("Waiting for drone to have a global position estimate...")
     async for health in drone.telemetry.health():
         print(health.is_global_position_ok, health.is_home_position_ok)
@@ -73,7 +78,10 @@ async def run():
     await drone.action.takeoff()
     print("Takeoff")
     await ManualDrop(drone, 1) # means using AUX1 to control the servo from pixhawk (Peripheral actuator set1 on QGC)
-    print("servo moved")
+    await drone.action.land()
+    print("Landing")
+    await drone.action.disarm()
+    print("Disarmed")
     
     
 if __name__ == "__main__":
