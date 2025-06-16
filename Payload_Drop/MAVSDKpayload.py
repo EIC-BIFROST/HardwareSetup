@@ -2,6 +2,7 @@ import asyncio
 from mavsdk import System
 import RCreadChannel
 
+
 DropHeight = 10
 ServoTime = 6 #servo dropping state
 
@@ -17,16 +18,6 @@ async def autoDrop(drone, ind, t):
     await asyncio.sleep(1)
     await drone.action.set_actuator(ind, -1)
     print("air drop done")
-
-# Auto with RC interrupt still need to be improved cannot use right now
-async def Drop(drone, ind, t):
-    for i in range(4): #depends on the number of servo on drone
-        await drone.action.set_actuator(i+1, -1)
-    halfValue = [0.4, 0.1, 0.1, 0] #dropping state tunning-required parameter
-    print("Start air dropping process")
-    await drone.action.set_actuator(ind, halfValue[ind-1])
-    await asyncio.sleep(t)
-    await drone.action.set_actuator(ind, 1)
 
 #100% Manual Drop 
 async def ManualDrop(drone, ind):
