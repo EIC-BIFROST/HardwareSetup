@@ -20,9 +20,9 @@ def check_RC_value(functionName: Literal['payloadDrop', 'CVSim', 'chan9_raw', 'c
         position = 1 # fast drop
     print(position)
     return True, position
-
-#while True:
-#    valid, position = check_RC_value('payloadDrop')
-#    print(valid)
-#    if valid:
-#        print(position)
+'''
+while True:
+    valid, position = check_RC_value('payloadDrop')
+    if valid:
+        print(valid, position)
+'''

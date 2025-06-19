@@ -5,47 +5,43 @@ import time
 
 
 DropHeight = 10
-ServoTime = 6 #servo dropping state
-
+ServoTime = 8 #servo dropping state
+#'''
 #tuning by time constant (ServoTime) with RC interrupt
-async def autoDrop(drone, ind, t):
-    for i in range(4): #depends on the number of servo on drone
-        await drone.action.set_actuator(i+1, -1)
-    halfValue = [0.4, 0.1, 0.1, 0] #dropping state tunning-required parameter
+async def autoDrop(drone, t):
     start = time.time()
+    print(start)
     print("Start air dropping process")
-    await drone.action.set_actuator(ind, halfValue[ind-1])
+    await drone.action.set_actuator(1, 0)
     while time.time() - start < t:
-        if RCreadChannel.check_RC_value('payload')[1] == 1 and RCreadChannel.check_RC_value('payload')[0]:
+        valid, position = RCreadChannel.check_RC_value('payloadDrop')
+        if valid and position == 1:
             print('Goodbye')
             break
+        #'''
         await asyncio.sleep(0.1)
-    await drone.action.set_actuator(ind, 1)
+    await drone.action.set_actuator(1, 1)
     await asyncio.sleep(1)
-    await drone.action.set_actuator(ind, -1)
+    await drone.action.set_actuator(1, -1)
     print("air drop done")
-
+#'''
 #100% Manual Drop 
-async def ManualDrop(drone, ind):
-    for i in range(4): #depends on the number of servo on drone
-        await drone.action.set_actuator(i+1, -1)
-    halfValue = [0.4, 0.1, 0.1, 0] #dropping state tunning-required parameter probably 0
+async def ManualDrop(drone):
     print("Start air dropping process")
     while True:
-        valid, position = RCreadChannel.check_RC_value('payload') #use SD switch on RC to control
+        valid, position = RCreadChannel.check_RC_value('payloadDrop') #use SD switch on RC to control
         if valid:
             if position == -1:
-                await drone.action.set_actuator(ind, -1)
+                await drone.action.set_actuator(1, -1)
                 print('not dropping')
             if position == 0:
-                await drone.action.set_actuator(ind, halfValue[ind-1])
+                await drone.action.set_actuator(1, 0)
                 print('dropping')
             if position == 1:
-                await drone.action.set_actuator(ind, 1)
+                await drone.action.set_actuator(1, 1)
                 print('Goodbye')
                 await asyncio.sleep(1)
                 break
-        await asyncio.sleep(0.1)
     print("air drop done")
         
 async def run():
@@ -60,7 +56,7 @@ async def run():
         if state.is_connected:
             print(f"-- Connected to drone!")
             break
-
+    '''
     # If want to test with out take off, take line 65-70 and line 74-76 out but the drone will operate only 6 second.
     print("Waiting for drone to have a global position estimate...")
     async for health in drone.telemetry.health():
@@ -68,15 +64,17 @@ async def run():
         if health.is_global_position_ok and health.is_home_position_ok:
             print("-- Global position estimate OK")
             break
-    
+    #'''
     await drone.action.arm()
     print("Armed")
-    await drone.action.set_takeoff_altitude(DropHeight)
-    await drone.action.takeoff()
-    print("Takeoff")
-    await ManualDrop(drone, 1) # means using AUX1 to control the servo from pixhawk (Peripheral actuator set1 on QGC)
-    await drone.action.land()
-    print("Landing")
+    await drone.action.set_actuator(1, -1)
+    #await drone.action.set_takeoff_altitude(DropHeight)
+    #await drone.action.takeoff()
+    #print("Takeoff")
+    #await ManualDrop(drone)
+    await autoDrop(drone, ServoTime)
+    #await drone.action.land()
+    #print("Landing")
     await drone.action.disarm()
     print("Disarmed")
     

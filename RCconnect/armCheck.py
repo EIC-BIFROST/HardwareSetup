@@ -15,6 +15,7 @@ async def check_arm_status():
             print(f"Is armed: {armed}")
             break
         if armed:
+            print("Drone is armed")
             break
 
 
