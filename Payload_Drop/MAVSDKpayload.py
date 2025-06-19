@@ -4,7 +4,7 @@ import RCreadChannel
 import time
 
 
-DropHeight = 10
+DropHeight = 16
 ServoTime = 8 #servo dropping state
 #'''
 #tuning by time constant (ServoTime) with RC interrupt
