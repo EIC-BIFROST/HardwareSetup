@@ -5,7 +5,7 @@ echo "Starting MAVLink Router..."
 mavlink-routerd -e 127.0.0.1:14550 -e 127.0.0.1:14551 -e 127.0.0.1:14552 /dev/serial/by-id/usb-Auterion_PX4_v6X.x_0-if00:57600 &
 
 # Optional: wait for mavlink-routerd to initialize
-sleep 2
+sleep 4
 
 # Start the Docker container
 echo "Starting Docker container 'eic'..."
