@@ -1,28 +1,19 @@
 #!/bin/bash
 
-# Run MAVLink Router (cleaned up: removed invalid command)
-echo "Starting MAVLink Router..."
-mavlink-routerd -e 127.0.0.1:14550 -e 127.0.0.1:14551 -e 127.0.0.1:14552 /dev/serial/by-id/usb-Auterion_PX4_v6X.x_0-if00:57600 &
+tmux new-session -d -s drone_session
 
-# Optional: wait for mavlink-routerd to initialize
-sleep 4
+# Window 1: MAVLink router
+tmux rename-window -t drone_session 'MAVLink'
+tmux send-keys -t drone_session \
+  'mavlink-routerd -e 127.0.0.1:14550 -e 127.0.0.1:14551 -e 127.0.0.1:14552 /dev/serial/by-id/usb-Auterion_PX4_v6X.x_0-if00-port0:57600' C-m
 
-# Start the Docker container
-echo "Starting Docker container 'eic'..."
-docker start eic
+# Window 2: Docker Python execution
+tmux split-window -h -t drone_session
+tmux send-keys -t drone_session \
+  'docker start eic && docker exec -it eic bash -c "cd /workspace/home/jetson/Autonomous_Drone && python3 run.py"' C-m
 
-# Attach to the container
-echo "Attaching to Docker container..."
-docker attach eic
+# Optional: layout
+tmux select-layout -t drone_session tiled
 
-# After detaching from Docker (Ctrl+P + Ctrl+Q), continue
-echo "Continuing after Docker..."
-
-cd workspace/home/jetson/Autonomous_Drone || {
-    echo "Directory not found!"
-    exit 1
-}
-
-# Run the Python script
-echo "Running run.py..."
-python3 run.py
+# Attach to tmux session
+tmux attach-session -t drone_session
