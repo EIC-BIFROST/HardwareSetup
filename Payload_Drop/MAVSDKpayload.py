@@ -2,15 +2,15 @@ import asyncio
 from mavsdk import System
 import RCreadChannel
 import time
+import mavsdk
 
 
 DropHeight = 16
 ServoTime = 8 #servo dropping state
 #'''
-#tuning by time constant (ServoTime) with RC interrupt
+#tuning by time constant (ServoTime) with RC interrupt (tested w/o payload)
 async def autoDrop(drone, t):
     start = time.time()
-    print(start)
     print("Start air dropping process")
     await drone.action.set_actuator(1, 0)
     while time.time() - start < t:
@@ -18,14 +18,14 @@ async def autoDrop(drone, t):
         if valid and position == 1:
             print('Goodbye')
             break
-        #'''
+        print(time.time() - start)
         await asyncio.sleep(0.1)
     await drone.action.set_actuator(1, 1)
     await asyncio.sleep(1)
     await drone.action.set_actuator(1, -1)
     print("air drop done")
 #'''
-#100% Manual Drop 
+#100% Manual Drop (tested with payload)
 async def ManualDrop(drone):
     print("Start air dropping process")
     while True:
@@ -68,15 +68,27 @@ async def run():
     await drone.action.arm()
     print("Armed")
     await drone.action.set_actuator(1, -1)
-    #await drone.action.set_takeoff_altitude(DropHeight)
-    #await drone.action.takeoff()
-    #print("Takeoff")
+    #'''
+    await drone.action.set_takeoff_altitude(DropHeight)
+    await drone.action.takeoff()
+    print("Takeoff")
+    flight_mode: mavsdk.telemetry.FlightMode
+    async for flight_mode in drone.system.telemetry.flight_mode():
+        if flight_mode == mavsdk.telemetry.FlightMode.HOLD:
+            break
+        valid, position = RCreadChannel.check_RC_value('payloadDrop')
+        if valid and position == 0:
+            break
+        await asyncio.sleep(0.1)
+    #'''
     #await ManualDrop(drone)
     await autoDrop(drone, ServoTime)
-    #await drone.action.land()
-    #print("Landing")
-    await drone.action.disarm()
-    print("Disarmed")
+    #'''
+    await drone.action.land()
+    print("Landing")
+    #await drone.action.disarm()
+    #print("Disarmed")
+    #'''
     
     
 if __name__ == "__main__":
